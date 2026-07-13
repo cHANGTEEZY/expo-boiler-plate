@@ -18,7 +18,7 @@ export default function AppLayout() {
           backgroundColor: isDark ? "#0a0a0a" : "#f5f5f5",
         }}
       >
-        <ActivityIndicator />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -30,14 +30,14 @@ export default function AppLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
+        headerShown: false,
+        contentStyle: {
+          flex: 1,
+          backgroundColor: isDark ? "#0a0a0a" : "#f5f5f5",
         },
-        headerTintColor: isDark ? "#ffffff" : "#000000",
-        headerShadowVisible: false,
       }}
     >
-      <Stack.Screen name="home" options={{ title: "Home", headerShown: false }} />
+      <Stack.Screen name="home" />
     </Stack>
   );
 }
