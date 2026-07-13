@@ -8,7 +8,9 @@
     "scheme": "expoboilerplate",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.changteezy.expo-boiler-plate",
+      "appleTeamId": "XPZVK3T5VQ"
     },
     "android": {
       "adaptiveIcon": {

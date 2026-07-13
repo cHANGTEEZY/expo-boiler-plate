@@ -1,16 +1,20 @@
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { View } from "react-native";
 import { Link, router } from "expo-router";
 
+import Screen from "@/components/layouts/Screen";
+import Container from "@/components/layouts/Container";
+import KeyboardAvoidingWrapper from "@/components/layouts/KeyboardAvoidingWrapper";
 import { authClient } from "@/lib/auth-client";
 import { logger } from "@/utils/logger";
+
+import { Button } from "heroui-native/button";
+import { Input } from "heroui-native/input";
+import { Typography } from "heroui-native/text";
+import { Alert } from "heroui-native/alert";
+import { Avatar } from "heroui-native/avatar";
+import { Card } from "heroui-native/card";
+import { Separator } from "heroui-native/separator";
 
 export default function SignUpScreen() {
   const [name, setName] = useState("");
@@ -46,105 +50,122 @@ export default function SignUpScreen() {
   const canSubmit = Boolean(name && email && password);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create account</Text>
-      <Text style={styles.subtitle}>Email and password via Better Auth</Text>
+    <Screen scroll edges={["bottom"]}>
+      <KeyboardAvoidingWrapper keyboardVerticalOffset={-50}>
+        <Container className="justify-center py-12">
+          <View className="items-center mb-8 gap-3">
+            <Avatar size="lg" color="accent">
+              <Avatar.Fallback
+                textProps={{ className: "text-xl font-bold" }}
+              />
+            </Avatar>
+            <View className="items-center gap-1">
+              <Typography type="h2" weight="bold" className="text-foreground">
+                Create account
+              </Typography>
+              <Typography type="body" color="muted">
+                Get started in seconds
+              </Typography>
+            </View>
+          </View>
 
-      <TextInput
-        autoComplete="name"
-        placeholder="Name"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        autoCapitalize="none"
-        autoComplete="email"
-        keyboardType="email-address"
-        placeholder="Email"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        autoCapitalize="none"
-        autoComplete="new-password"
-        placeholder="Password"
-        secureTextEntry
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-      />
+          <Card className="mx-2">
+            <Card.Body className="gap-4">
+              {error ? (
+                <Alert status="danger">
+                  <Alert.Indicator />
+                  <Alert.Content>
+                    <Alert.Title>Sign up failed</Alert.Title>
+                    <Alert.Description>{error}</Alert.Description>
+                  </Alert.Content>
+                </Alert>
+              ) : null}
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+              <View className="gap-1">
+                <Typography
+                  type="body-sm"
+                  weight="medium"
+                  className="text-foreground"
+                >
+                  Full name
+                </Typography>
+                <Input
+                  autoComplete="name"
+                  placeholder="John Doe"
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
 
-      <Pressable
-        disabled={loading || !canSubmit}
-        style={[styles.button, (loading || !canSubmit) && styles.buttonDisabled]}
-        onPress={handleSignUp}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Sign up</Text>
-        )}
-      </Pressable>
+              <View className="gap-1">
+                <Typography
+                  type="body-sm"
+                  weight="medium"
+                  className="text-foreground"
+                >
+                  Email
+                </Typography>
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChangeText={setEmail}
+                />
+              </View>
 
-      <Link href="/sign-in" style={styles.link}>
-        Already have an account? Sign in
-      </Link>
-    </View>
+              <View className="gap-1">
+                <Typography
+                  type="body-sm"
+                  weight="medium"
+                  className="text-foreground"
+                >
+                  Password
+                </Typography>
+                <Input
+                  autoCapitalize="none"
+                  autoComplete="new-password"
+                  placeholder="Create a strong password"
+                  secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
+                />
+              </View>
+
+              <Button
+                variant="primary"
+                size="lg"
+                isDisabled={loading || !canSubmit}
+                onPress={handleSignUp}
+              >
+                <Button.Label>
+                  {loading ? "Creating account..." : "Create account"}
+                </Button.Label>
+              </Button>
+            </Card.Body>
+          </Card>
+
+          <View className="flex-row items-center justify-center mt-6 gap-3 px-2">
+            <Separator orientation="horizontal" className="flex-1" />
+            <Typography type="body-xs" color="muted">
+              or
+            </Typography>
+            <Separator orientation="horizontal" className="flex-1" />
+          </View>
+
+          <View className="items-center mt-4">
+            <Typography type="body" color="muted">
+              Already have an account?{" "}
+            </Typography>
+            <Link href="/sign-in" asChild>
+              <Button variant="ghost" size="sm">
+                <Button.Label className="text-primary">Sign in</Button.Label>
+              </Button>
+            </Link>
+          </View>
+        </Container>
+      </KeyboardAvoidingWrapper>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    gap: 12,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#666",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#208AEF",
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  error: {
-    color: "#c62828",
-    fontSize: 14,
-  },
-  link: {
-    marginTop: 16,
-    textAlign: "center",
-    color: "#208AEF",
-    fontSize: 15,
-  },
-});

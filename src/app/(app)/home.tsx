@@ -1,29 +1,31 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { View, useColorScheme } from "react-native";
 import { router } from "expo-router";
 
+import Screen from "@/components/layouts/Screen";
+import Container from "@/components/layouts/Container";
 import { useUsers } from "@/api/hooks/use-users";
 import { authClient, useSession } from "@/lib/auth-client";
 import { logger } from "@/utils/logger";
 
+import { Button } from "heroui-native/button";
+import { Typography } from "heroui-native/text";
+import { Card } from "heroui-native/card";
+import { Avatar } from "heroui-native/avatar";
+import { Alert } from "heroui-native/alert";
+import { Surface } from "heroui-native/surface";
+import { Uniwind } from "uniwind";
+
 export default function HomeScreen() {
   const { data: session } = useSession();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const {
     data: usersData,
     isLoading: usersLoading,
     isError: usersError,
     error: usersErr,
     refetch,
-  } = useUsers(undefined, {
-    // Example endpoint may not exist yet on your backend — keep UI resilient.
-    retry: false,
-  });
+  } = useUsers(undefined, { retry: false });
 
   const handleSignOut = async () => {
     try {
@@ -34,104 +36,107 @@ export default function HomeScreen() {
     }
   };
 
+  const toggleTheme = () => {
+    Uniwind.setTheme(isDark ? "light" : "dark");
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Signed in</Text>
-      <Text style={styles.meta}>
-        {session?.user.name} ({session?.user.email})
-      </Text>
+    <Screen scroll edges={["bottom"]}>
+      <Container className="py-6">
+        <View className="flex-row items-center justify-between mb-6">
+          <View className="flex-row items-center gap-3">
+            <Avatar size="md" color="accent">
+              <Avatar.Fallback
+                textProps={{
+                  className: "text-sm font-bold",
+                }}
+              />
+            </Avatar>
+            <View>
+              <Typography type="body-sm" weight="semibold" className="text-foreground">
+                {session?.user.name}
+              </Typography>
+              <Typography type="body-xs" color="muted">
+                {session?.user.email}
+              </Typography>
+            </View>
+          </View>
+          <Button variant="ghost" size="sm" onPress={toggleTheme}>
+            <Button.Label>{isDark ? "☀️" : "🌙"}</Button.Label>
+          </Button>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Users API example</Text>
-        <Text style={styles.hint}>
-          Calls GET /users with the Better Auth cookie from SecureStore.
-        </Text>
+        <Card className="mb-4">
+          <Card.Header>
+            <Typography type="h5" weight="semibold">
+              Welcome
+            </Typography>
+          </Card.Header>
+          <Card.Body className="gap-2">
+            <Typography type="body" color="muted">
+              You are signed in as{" "}
+              <Typography type="body" weight="semibold">
+                {session?.user.name}
+              </Typography>
+            </Typography>
+          </Card.Body>
+        </Card>
 
-        {usersLoading ? <ActivityIndicator /> : null}
-        {usersError ? (
-          <Text style={styles.error}>
-            {usersErr?.message ?? "Failed to load users (is your API running?)"}
-          </Text>
-        ) : null}
-        {usersData?.users?.length ? (
-          usersData.users.map((user) => (
-            <Text key={user.id} style={styles.row}>
-              {user.name} — {user.email}
-            </Text>
-          ))
-        ) : !usersLoading && !usersError ? (
-          <Text style={styles.hint}>No users returned.</Text>
-        ) : null}
+        <Card className="mb-4">
+          <Card.Header>
+            <Typography type="h5" weight="semibold">
+              Users API
+            </Typography>
+          </Card.Header>
+          <Card.Body className="gap-3">
+            <Typography type="body-sm" color="muted">
+              Calls GET /users with the Better Auth cookie from SecureStore.
+            </Typography>
 
-        <Pressable style={styles.secondaryButton} onPress={() => void refetch()}>
-          <Text style={styles.secondaryButtonText}>Refresh users</Text>
-        </Pressable>
-      </View>
+            {usersError ? (
+              <Alert status="warning">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Description>
+                    {usersErr?.message ?? "Failed to load users (is your API running?)"}
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert>
+            ) : null}
 
-      <Pressable style={styles.button} onPress={handleSignOut}>
-        <Text style={styles.buttonText}>Sign out</Text>
-      </Pressable>
-    </ScrollView>
+            {usersData?.users?.length ? (
+              <View className="gap-2">
+                {usersData.users.map((user) => (
+                  <Surface key={user.id} variant="secondary" className="rounded-xl px-4 py-3">
+                    <Typography type="body" weight="medium">
+                      {user.name}
+                    </Typography>
+                    <Typography type="body-xs" color="muted">
+                      {user.email}
+                    </Typography>
+                  </Surface>
+                ))}
+              </View>
+            ) : !usersLoading && !usersError ? (
+              <Typography type="body-sm" color="muted">
+                No users returned.
+              </Typography>
+            ) : null}
+
+            <Button
+              variant="outline"
+              size="md"
+              onPress={() => void refetch()}
+            >
+              <Button.Label>Refresh users</Button.Label>
+            </Button>
+          </Card.Body>
+        </Card>
+
+        <Button variant="danger" size="lg" onPress={handleSignOut}>
+          <Button.Label>Sign out</Button.Label>
+        </Button>
+      </Container>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    gap: 12,
-    backgroundColor: "#fff",
-    flexGrow: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-  },
-  meta: {
-    fontSize: 15,
-    color: "#444",
-  },
-  section: {
-    marginTop: 16,
-    gap: 8,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  hint: {
-    fontSize: 13,
-    color: "#777",
-  },
-  row: {
-    fontSize: 15,
-    paddingVertical: 4,
-  },
-  error: {
-    color: "#c62828",
-    fontSize: 14,
-  },
-  button: {
-    marginTop: 24,
-    backgroundColor: "#208AEF",
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  secondaryButton: {
-    borderWidth: 1,
-    borderColor: "#208AEF",
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  secondaryButtonText: {
-    color: "#208AEF",
-    fontWeight: "600",
-  },
-});

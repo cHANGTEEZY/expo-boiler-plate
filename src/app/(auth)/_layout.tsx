@@ -1,15 +1,25 @@
 import { Stack } from "expo-router";
+import { View, useColorScheme } from "react-native";
 
 export default function AuthLayout() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
   return (
-    <Stack
-      screenOptions={{
-        headerShown: true,
-        headerShadowVisible: false,
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: isDark ? "#0a0a0a" : "#f5f5f5",
       }}
     >
-      <Stack.Screen name="sign-in" options={{ title: "Sign in" }} />
-      <Stack.Screen name="sign-up" options={{ title: "Create account" }} />
-    </Stack>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: isDark ? "#0a0a0a" : "#f5f5f5",
+          },
+        }}
+      />
+    </View>
   );
 }
