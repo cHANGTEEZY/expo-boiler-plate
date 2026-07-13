@@ -1,9 +1,9 @@
 import { ActivityIndicator, View } from "react-native";
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 
 import { useSession } from "@/lib/auth-client";
 
-export default function Index() {
+export default function AppLayout() {
   const { data: session, isPending } = useSession();
 
   if (isPending) {
@@ -14,9 +14,13 @@ export default function Index() {
     );
   }
 
-  if (session) {
-    return <Redirect href="/home" />;
+  if (!session) {
+    return <Redirect href="/sign-in" />;
   }
 
-  return <Redirect href="/sign-in" />;
+  return (
+    <Stack>
+      <Stack.Screen name="home" options={{ title: "Home" }} />
+    </Stack>
+  );
 }
