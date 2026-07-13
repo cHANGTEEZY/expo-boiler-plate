@@ -18,11 +18,13 @@ const KeyboardAvoidingWrapper = ({
   style,
   keyboardVerticalOffset = 0,
 }: KeyboardAvoidingWrapperProps) => {
+  // Android `behavior="height"` often collapses content to zero height (blank screen).
+  // Prefer padding on iOS; leave behavior unset on Android.
   return (
     <KeyboardAvoidingView
       className={cn("flex-1", className)}
-      style={style}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[{ flex: 1 }, style]}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? keyboardVerticalOffset : 0}
     >
       {children}

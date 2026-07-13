@@ -16,6 +16,28 @@ function getDevFallbackApiUrl(): string {
 }
 
 /**
+ * On Android emulators, localhost/127.0.0.1 points at the emulator,
+ * not the host machine. Rewrite to 10.0.2.2 so EXPO_PUBLIC_API_URL=http://localhost:3000 works.
+ */
+function resolveForPlatform(apiUrl: string): string {
+  if (Platform.OS !== "android") {
+    return apiUrl;
+  }
+
+  try {
+    const url = new URL(apiUrl);
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+      url.hostname = "10.0.2.2";
+      return url.toString().replace(/\/$/, "");
+    }
+  } catch {
+    return apiUrl.replace(/\/$/, "");
+  }
+
+  return apiUrl.replace(/\/$/, "");
+}
+
+/**
  * Public API / Better Auth base URL (no trailing slash).
  * Set `EXPO_PUBLIC_API_URL` in `.env` (see `.env.example`).
  */
@@ -42,5 +64,5 @@ export function getApiUrl(): string {
     return "";
   }
 
-  return apiUrl.replace(/\/$/, "");
+  return resolveForPlatform(apiUrl);
 }

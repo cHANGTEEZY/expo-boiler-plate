@@ -24,14 +24,17 @@ const Screen = ({
   return (
     <SafeAreaView
       className={cn("flex-1 bg-background", className)}
+      // Explicit styles so layout still works if uniwind className fails to apply.
+      style={{ flex: 1, backgroundColor: "#f5f5f5" }}
       edges={edges}
       testID={testID}
     >
       {scroll ? (
         <ScrollView
           className="flex-1"
+          style={{ flex: 1 }}
           contentContainerClassName={cn("flex-grow", contentContainerClassName)}
-          contentContainerStyle={contentContainerStyle}
+          contentContainerStyle={[{ flexGrow: 1 }, contentContainerStyle]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
